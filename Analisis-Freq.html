@@ -209,6 +209,15 @@
             margin-bottom: 10px;
         }
         
+        .error-box {
+            background: rgba(244, 67, 54, 0.2);
+            border: 1px solid #F44336;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+            display: none;
+        }
+        
         footer {
             margin-top: 30px;
             opacity: 0.7;
@@ -238,6 +247,10 @@
             <h1><i class="fas fa-wave-square"></i> Analisis Frekuensi Audio</h1>
             <p class="subtitle">Dapatkan rentang frekuensi bass, mid, dan treble dari mikrofon perangkat Anda</p>
         </header>
+        
+        <div class="error-box" id="errorBox">
+            <strong>Error:</strong> <span id="errorMessage"></span>
+        </div>
         
         <div class="status">
             <div class="status-icon inactive" id="statusIcon"><i class="fas fa-microphone-slash"></i></div>
@@ -293,6 +306,7 @@
                 <li><strong>Mid (250Hz-2kHz)</strong>: Frekuensi menengah, tempat sebagian besar instrumen dan vokal berada</li>
                 <li><strong>Treble (2kHz-20kHz)</strong>: Frekuensi tinggi, memberikan kejelasan dan detail pada suara</li>
                 <li>Analisis ini menggunakan Web Audio API untuk memproses sinyal dari mikrofon perangkat Anda</li>
+                <li>Pastikan browser Anda mendukung fitur ini (Chrome, Firefox, Edge terbaru)</li>
             </ul>
         </div>
         
@@ -315,18 +329,32 @@
         const trebleValue = document.getElementById('trebleValue');
         const canvas = document.getElementById('visualizerCanvas');
         const ctx = canvas.getContext('2d');
+        const errorBox = document.getElementById('errorBox');
+        const errorMessage = document.getElementById('errorMessage');
         
         // Variabel audio
         let audioContext;
         let analyser;
         let microphone;
-        let javascriptNode;
+        let dataArray;
         let isActive = false;
+        let animationFrameId;
         
         // Atur ukuran canvas
         function setupCanvas() {
             canvas.width = canvas.offsetWidth;
             canvas.height = canvas.offsetHeight;
+        }
+        
+        // Tampilkan error
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorBox.style.display = 'block';
+        }
+        
+        // Sembunyikan error
+        function hideError() {
+            errorBox.style.display = 'none';
         }
         
         // Update status UI
@@ -355,10 +383,14 @@
         }
         
         // Visualisasi audio
-        function visualize(dataArray) {
-            requestAnimationFrame(() => visualize(dataArray));
+        function visualize() {
+            if (!isActive) return;
             
+            // Bersihkan canvas
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Dapatkan data frekuensi
+            analyser.getByteFrequencyData(dataArray);
             
             const barWidth = (canvas.width / dataArray.length) * 2.5;
             let barHeight;
@@ -408,11 +440,18 @@
             const trebleLevel = Math.min(100, (trebleAvg / 256) * 200);
             
             updateFrequencyLevels(bassLevel, midLevel, trebleLevel);
+            
+            // Lanjutkan loop animasi
+            animationFrameId = requestAnimationFrame(visualize);
         }
         
         // Mulai analisis audio
         async function startAnalysis() {
             try {
+                if (isActive) return;
+                
+                hideError();
+                
                 // Mengatur audio context
                 audioContext = new (window.AudioContext || window.webkitAudioContext)();
                 analyser = audioContext.createAnalyser();
@@ -420,10 +459,18 @@
                 // Mengatur analiser
                 analyser.fftSize = 2048;
                 const bufferLength = analyser.frequencyBinCount;
-                const dataArray = new Uint8Array(bufferLength);
+                dataArray = new Uint8Array(bufferLength);
                 
                 // Mendapatkan akses ke mikrofon
-                const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    audio: {
+                        echoCancellation: false,
+                        noiseSuppression: false,
+                        autoGainControl: false
+                    }, 
+                    video: false 
+                });
+                
                 microphone = audioContext.createMediaStreamSource(stream);
                 
                 // Menghubungkan mikrofon ke analiser
@@ -433,29 +480,41 @@
                 updateStatus(true);
                 
                 // Memulai visualisasi
-                visualize(dataArray);
+                animationFrameId = requestAnimationFrame(visualize);
                 
             } catch (err) {
                 console.error('Error accessing microphone:', err);
-                alert('Tidak dapat mengakses mikrofon. Pastikan Anda memberikan izin.');
+                showError('Tidak dapat mengakses mikrofon. Pastikan Anda memberikan izin dan browser mendukung fitur ini.');
                 updateStatus(false);
             }
         }
         
         // Menghentikan analisis
         function stopAnalysis() {
-            if (microphone) {
-                microphone.disconnect();
-                const tracks = microphone.mediaStream.getTracks();
-                tracks.forEach(track => track.stop());
+            if (isActive) {
+                // Hentikan stream mikrofon
+                if (microphone) {
+                    microphone.disconnect();
+                    const tracks = microphone.mediaStream.getTracks();
+                    tracks.forEach(track => track.stop());
+                }
+                
+                // Hentikan audio context
+                if (audioContext) {
+                    audioContext.close();
+                }
+                
+                // Hentikan animasi
+                if (animationFrameId) {
+                    cancelAnimationFrame(animationFrameId);
+                }
+                
+                updateStatus(false);
+                updateFrequencyLevels(0, 0, 0);
+                
+                // Bersihkan canvas
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
             }
-            
-            if (audioContext) {
-                audioContext.close();
-            }
-            
-            updateStatus(false);
-            updateFrequencyLevels(0, 0, 0);
         }
         
         // Event listeners
@@ -468,16 +527,19 @@
             window.addEventListener('resize', setupCanvas);
         });
         
-        // Tampilkan pesan jika browser tidak mendukung
-        if (!navigator.mediaDevices || !window.AudioContext) {
-            document.body.innerHTML = `
-                <div class="container">
-                    <h1>Browser Tidak Mendukung</h1>
-                    <p>Browser Anda tidak mendukung fitur yang diperlukan untuk aplikasi ini.</p>
-                    <p>Silakan gunakan browser modern seperti Chrome, Firefox, atau Edge.</p>
-                </div>
-            `;
+        // Cek dukungan browser
+        function checkBrowserSupport() {
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                showError('Browser Anda tidak mendukung akses mikrofon. Gunakan browser modern seperti Chrome, Firefox, atau Edge.');
+            }
+            
+            if (!window.AudioContext && !window.webkitAudioContext) {
+                showError('Browser Anda tidak mendukung Web Audio API. Gunakan browser modern seperti Chrome, Firefox, atau Edge.');
+            }
         }
+        
+        // Jalankan pengecekan dukungan browser
+        checkBrowserSupport();
     </script>
 </body>
 </html>
