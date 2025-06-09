@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pemutar Audio YouTube - FIXED</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 500px;
+            padding: 30px;
+            text-align: center;
+            animation: fadeIn 0.8s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        h1 {
+            margin-bottom: 20px;
+            font-size: 2.2rem;
+            background: linear-gradient(90deg, #ff9966, #ff5e62);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .input-group {
+            margin: 25px 0;
+        }
+        
+        input {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 50px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1rem;
+            margin-bottom: 15px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #ff5e62;
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 0 10px rgba(255, 94, 98, 0.5);
+        }
+        
+        input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+        
+        button {
+            background: linear-gradient(90deg, #ff9966, #ff5e62);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(255, 94, 98, 0.4);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(255, 94, 98, 0.6);
+        }
+        
+        button:active {
+            transform: translateY(1px);
+        }
+        
+        button:disabled {
+            background: linear-gradient(90deg, #aaa, #888);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .player {
+            margin: 30px 0;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            animation: slideUp 0.5s ease-out;
+        }
+        
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .track-info {
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+        }
+        
+        .track-info h3 {
+            margin-bottom: 10px;
+            color: #ff9966;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+            flex-direction: column;
+        }
+        
+        .volume-control {
+            display: flex;
+            align-items: center;
+            margin-top: 15px;
+            width: 100%;
+            max-width: 300px;
+        }
+        
+        .volume-control label {
+            margin-right: 10px;
+            color: #ff9966;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            min-width: 80px;
+        }
+        
+        #volume {
+            flex-grow: 1;
+        }
+        
+        .progress-container {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            margin: 20px 0;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .progress {
+            height: 100%;
+            background: linear-gradient(90deg, #ff9966, #ff5e62);
+            border-radius: 4px;
+            width: 0%;
+            transition: width 0.1s linear;
+        }
+        
+        .time {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-top: 5px;
+        }
+        
+        .instructions {
+            margin-top: 25px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            text-align: left;
+            animation: fadeIn 1s ease-out;
+        }
+        
+        .instructions h3 {
+            color: #ff9966;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .instructions ul {
+            padding-left: 20px;
+        }
+        
+        .instructions li {
+            margin-bottom: 8px;
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+        }
+        
+        .instructions li::before {
+            content: "•";
+            color: #ff5e62;
+        }
+        
+        .error {
+            color: #ff5e62;
+            margin: 15px 0;
+            padding: 12px;
+            background: rgba(255, 94, 98, 0.1);
+            border-radius: 5px;
+            display: none;
+            text-align: left;
+            animation: shake 0.5s;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-5px); }
+            40%, 80% { transform: translateX(5px); }
+        }
+        
+        .status {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            display: none;
+        }
+        
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 3px solid #ff9966;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @media (max-width: 500px) {
+            .container {
+                padding: 20px 15px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            button {
+                padding: 10px 20px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1><i class="fab fa-youtube"></i> Pemutar Audio YouTube</h1>
+        
+        <div class="input-group">
+            <input type="text" id="youtube-url" placeholder="Masukkan URL video YouTube (contoh: https://www.youtube.com/watch?v=dQw4w9WgXcQ)">
+            <div class="buttons">
+                <button id="play-btn"><i class="fas fa-play"></i> Putar Audio</button>
+                <button id="pause-btn" disabled><i class="fas fa-pause"></i> Jeda</button>
+                <button id="stop-btn" disabled><i class="fas fa-stop"></i> Stop</button>
+            </div>
+        </div>
+        
+        <div class="error" id="error-msg"></div>
+        <div class="status" id="status-msg"></div>
+        
+        <div class="player">
+            <div class="track-info">
+                <h3><i class="fas fa-music"></i> <span id="track-title">Belum ada video dipilih</span></h3>
+                <div class="progress-container">
+                    <div class="progress" id="progress-bar"></div>
+                </div>
+                <div class="time">
+                    <span id="current-time">0:00</span>
+                    <span id="duration">0:00</span>
+                </div>
+            </div>
+            
+            <div class="controls">
+                <div class="volume-control">
+                    <label for="volume"><i class="fas fa-volume-up"></i> Volume:</label>
+                    <input type="range" id="volume" min="0" max="100" value="80">
+                </div>
+            </div>
+        </div>
+        
+        <div class="instructions">
+            <h3><i class="fas fa-info-circle"></i> Petunjuk Penggunaan:</h3>
+            <ul>
+                <li><span>Salin URL video YouTube dari browser Anda</span></li>
+                <li><span>Tempel URL ke dalam input di atas</span></li>
+                <li><span>Klik tombol "Putar Audio" untuk memulai</span></li>
+                <li><span>Gunakan kontrol volume untuk mengatur suara</span></li>
+                <li><span>Klik pada progress bar untuk melompat ke bagian tertentu</span></li>
+                <li><span>Tombol "Jeda" untuk menghentikan sementara pemutaran</span></li>
+                <li><span>Tombol "Stop" untuk menghentikan pemutaran dan mereset</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Elemen DOM
+            const youtubeUrlInput = document.getElementById('youtube-url');
+            const playBtn = document.getElementById('play-btn');
+            const pauseBtn = document.getElementById('pause-btn');
+            const stopBtn = document.getElementById('stop-btn');
+            const trackTitle = document.getElementById('track-title');
+            const progressBar = document.getElementById('progress-bar');
+            const currentTimeEl = document.getElementById('current-time');
+            const durationEl = document.getElementById('duration');
+            const volumeControl = document.getElementById('volume');
+            const errorMsg = document.getElementById('error-msg');
+            const statusMsg = document.getElementById('status-msg');
+            const progressContainer = document.querySelector('.progress-container');
+            
+            // Objek Audio
+            let audio = new Audio();
+            let audioContext;
+            
+            // Status pemutaran
+            let isPlaying = false;
+            
+            // Fungsi untuk mengekstrak ID video dari URL YouTube
+            function getYouTubeVideoId(url) {
+                const regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
+                const match = url.match(regExp);
+                return (match && match[7].length === 11) ? match[7] : null;
+            }
+            
+            // Fungsi untuk menampilkan status
+            function showStatus(message) {
+                statusMsg.innerHTML = `<div class="spinner"></div> ${message}`;
+                statusMsg.style.display = 'block';
+                errorMsg.style.display = 'none';
+            }
+            
+            // Fungsi untuk menyembunyikan status
+            function hideStatus() {
+                statusMsg.style.display = 'none';
+            }
+            
+            // Fungsi untuk memulai pemutaran audio
+            async function playAudio() {
+                const youtubeUrl = youtubeUrlInput.value.trim();
+                
+                if (!youtubeUrl) {
+                    showError('Silakan masukkan URL video YouTube');
+                    return;
+                }
+                
+                const videoId = getYouTubeVideoId(youtubeUrl);
+                
+                if (!videoId) {
+                    showError('URL YouTube tidak valid. Pastikan URL benar.');
+                    return;
+                }
+                
+                // Sembunyikan pesan error jika ada
+                hideError();
+                showStatus('Mengambil data audio dari YouTube...');
+                
+                try {
+                    // Gunakan API untuk mendapatkan URL audio
+                    const response = await fetch(`https://api.vevioz.com/api/button/mp3/${videoId}`);
+                    const data = await response.json();
+                    
+                    if (!data || !data.url) {
+                        throw new Error('Tidak dapat menemukan sumber audio');
+                    }
+                    
+                    // Set URL audio
+                    audio.src = data.url;
+                    hideStatus();
+                    
+                    // Set judul video
+                    trackTitle.textContent = `Video ID: ${videoId}`;
+                    
+                    // Coba buat konteks audio
+                    try {
+                        if (!audioContext) {
+                            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                            const source = audioContext.createMediaElementSource(audio);
+                            source.connect(audioContext.destination);
+                        }
+                        
+                        await audio.play();
+                        isPlaying = true;
+                        playBtn.disabled = true;
+                        pauseBtn.disabled = false;
+                        stopBtn.disabled = false;
+                        
+                        // Dapatkan metadata setelah audio dimuat
+                        audio.onloadedmetadata = () => {
+                            durationEl.textContent = formatTime(audio.duration);
+                        };
+                    } catch (err) {
+                        showError(`Gagal memutar: ${err.message}`);
+                        hideStatus();
+                    }
+                } catch (err) {
+                    showError(`Error: ${err.message}`);
+                    hideStatus();
+                }
+            }
+            
+            // Fungsi untuk menjeda pemutaran
+            function pauseAudio() {
+                audio.pause();
+                isPlaying = false;
+                playBtn.disabled = false;
+                pauseBtn.disabled = true;
+            }
+            
+            // Fungsi untuk menghentikan pemutaran
+            function stopAudio() {
+                audio.pause();
+                audio.currentTime = 0;
+                isPlaying = false;
+                playBtn.disabled = false;
+                pauseBtn.disabled = true;
+                stopBtn.disabled = true;
+                progressBar.style.width = '0%';
+                currentTimeEl.textContent = '0:00';
+            }
+            
+            // Fungsi untuk mengatur volume
+            function setVolume() {
+                audio.volume = volumeControl.value / 100;
+            }
+            
+            // Fungsi untuk mengupdate progress bar
+            function updateProgress() {
+                if (isPlaying) {
+                    const percent = (audio.currentTime / audio.duration) * 100;
+                    progressBar.style.width = `${percent}%`;
+                    currentTimeEl.textContent = formatTime(audio.currentTime);
+                }
+            }
+            
+            // Fungsi untuk mengubah waktu pemutaran saat progress bar diklik
+            function setProgress(e) {
+                const width = this.clientWidth;
+                const clickX = e.offsetX;
+                const duration = audio.duration;
+                
+                audio.currentTime = (clickX / width) * duration;
+            }
+            
+            // Format waktu (detik ke menit:detik)
+            function formatTime(seconds) {
+                const minutes = Math.floor(seconds / 60);
+                seconds = Math.floor(seconds % 60);
+                return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+            }
+            
+            // Tampilkan pesan error
+            function showError(message) {
+                errorMsg.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${message}`;
+                errorMsg.style.display = 'block';
+            }
+            
+            // Sembunyikan pesan error
+            function hideError() {
+                errorMsg.style.display = 'none';
+            }
+            
+            // Event listeners
+            playBtn.addEventListener('click', playAudio);
+            pauseBtn.addEventListener('click', pauseAudio);
+            stopBtn.addEventListener('click', stopAudio);
+            volumeControl.addEventListener('input', setVolume);
+            audio.addEventListener('timeupdate', updateProgress);
+            progressContainer.addEventListener('click', setProgress);
+            audio.addEventListener('ended', stopAudio);
+            
+            // Contoh URL YouTube untuk kemudahan pengujian
+            youtubeUrlInput.value = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ';
+            
+            // Set volume awal
+            setVolume();
+        });
+    </script>
+</body>
+</html>
