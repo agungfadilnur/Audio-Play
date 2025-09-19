@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Footer dengan Logo Berganti</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        /* Content placeholder untuk menunjukkan footer di bawah */
+        .content {
+            min-height: 80vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        /* Footer Styles */
+        .footer {
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 3rem 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .logo-container {
+            position: relative;
+            height: 80px;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo {
+            position: absolute;
+            transition: all 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transform-origin: center;
+            filter: blur(0px);
+        }
+
+        .logo.active {
+            opacity: 1;
+            transform: translateY(0) scale(1) rotate(0deg);
+            filter: blur(0px) brightness(1);
+            animation: logoFadeIn 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .logo.inactive {
+            opacity: 0;
+            transform: translateY(30px) scale(0.8) rotate(-5deg);
+            filter: blur(3px) brightness(0.7);
+        }
+
+        @keyframes logoFadeIn {
+            0% {
+                opacity: 0;
+                transform: translateY(40px) scale(0.7) rotate(-10deg);
+                filter: blur(8px) brightness(0.5);
+            }
+            50% {
+                opacity: 0.7;
+                transform: translateY(-5px) scale(1.05) rotate(2deg);
+                filter: blur(2px) brightness(1.1);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1) rotate(0deg);
+                filter: blur(0px) brightness(1);
+            }
+        }
+
+        /* Logo GNDRNG */
+        .logo-gndrng {
+            filter: drop-shadow(0 4px 20px rgba(255, 255, 255, 0.3));
+        }
+
+        .logo-gndrng img {
+            height: 40px;
+            width: auto;
+            filter: brightness(0) invert(1);
+        }
+
+        .logo-gndrng.active {
+            animation: logoGlow 1.2s ease-out;
+        }
+
+        @keyframes logoGlow {
+            0% {
+                filter: drop-shadow(0 4px 20px rgba(255, 255, 255, 0.3));
+            }
+            50% {
+                filter: drop-shadow(0 8px 40px rgba(255, 255, 255, 0.8));
+            }
+            100% {
+                filter: drop-shadow(0 4px 20px rgba(255, 255, 255, 0.3));
+            }
+        }
+
+        /* Logo LABS (Dark Logic) */
+        .logo-labs {
+            filter: drop-shadow(0 4px 20px rgba(255, 255, 255, 0.4));
+        }
+
+        .logo-labs img {
+            height: 50px;
+            width: auto;
+        }
+
+        .logo-labs.active {
+            animation: chipPulse 1.2s ease-out;
+        }
+
+        @keyframes chipPulse {
+            0% {
+                filter: drop-shadow(0 4px 20px rgba(255, 255, 255, 0.4));
+                transform: scale(1);
+            }
+            50% {
+                filter: drop-shadow(0 8px 40px rgba(255, 255, 255, 0.9));
+                transform: scale(1.05);
+            }
+            100% {
+                filter: drop-shadow(0 4px 20px rgba(255, 255, 255, 0.4));
+                transform: scale(1);
+            }
+        }
+
+        .footer-text {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            opacity: 0;
+            animation: fadeInUp 1s ease-out 0.5s forwards;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 1.5rem;
+            opacity: 0;
+            animation: fadeInUp 1s ease-out 0.7s forwards;
+        }
+
+        .footer-link {
+            color: rgba(255, 255, 255, 0.6);
+            text-decoration: none;
+            font-size: 0.85rem;
+            position: relative;
+            transition: color 0.3s ease;
+        }
+
+        .footer-link:hover {
+            color: #fff;
+        }
+
+        .footer-link::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 50%;
+            width: 0;
+            height: 1px;
+            background: #fff;
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+        }
+
+        .footer-link:hover::after {
+            width: 100%;
+        }
+
+        .copyright {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.75rem;
+            opacity: 0;
+            animation: fadeInUp 1s ease-out 0.9s forwards;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .footer {
+                padding: 2rem 1rem;
+            }
+            
+            .logo-gndrng img {
+                height: 32px;
+            }
+            
+            .logo-labs img {
+                height: 40px;
+            }
+            
+            .footer-links {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div>
+            <h1>Selamat Datang!</h1>
+            <p>Scroll ke bawah untuk melihat footer dengan logo yang berganti</p>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="logo-container">
+            <!-- Logo GNDRNG -->
+            <div class="logo logo-gndrng active" id="logo1">
+                <img src="https://raw.githubusercontent.com/agungfadilnur/Power-Supply-Amp/refs/heads/main/Img/gndrg.jpg" alt="GNDRNG Logo" />
+            </div>
+            
+            <!-- Logo LABS -->
+            <div class="logo logo-labs inactive" id="logo2">
+                <img src="https://agungfadilnur.github.io/darklogic/img/darklogic-warna.png" alt="LABS Logo" />
+            </div>
+        </div>
+
+        <p class="footer-text">Menciptakan pengalaman digital yang menakjubkan</p>
+        
+        <div class="footer-links">
+            <a href="#" class="footer-link">Tentang Kami</a>
+            <a href="#" class="footer-link">Layanan</a>
+            <a href="#" class="footer-link">Portfolio</a>
+            <a href="#" class="footer-link">Kontak</a>
+        </div>
+
+        <p class="copyright">&copy; 2024 Your Company. Semua hak dilindungi.</p>
+    </footer>
+
+    <script>
+        // Animasi pergantian logo
+        let currentLogo = 0;
+        const logos = ['logo1', 'logo2'];
+        
+        function switchLogo() {
+            // Tambahkan efek fade out dengan delay
+            const currentElement = document.getElementById(logos[currentLogo]);
+            const nextLogo = (currentLogo + 1) % logos.length;
+            const nextElement = document.getElementById(logos[nextLogo]);
+            
+            // Fade out current logo dengan efek
+            currentElement.style.transform = 'translateY(-30px) scale(0.8) rotate(5deg)';
+            currentElement.style.filter = 'blur(8px) brightness(0.3)';
+            
+            setTimeout(() => {
+                // Sembunyikan logo aktif
+                currentElement.classList.remove('active');
+                currentElement.classList.add('inactive');
+                
+                // Reset transform untuk transisi yang smooth
+                currentElement.style.transform = '';
+                currentElement.style.filter = '';
+                
+                // Beralih ke logo berikutnya
+                currentLogo = nextLogo;
+                
+                // Tampilkan logo baru dengan delay kecil untuk efek yang lebih dramatis
+                setTimeout(() => {
+                    nextElement.classList.remove('inactive');
+                    nextElement.classList.add('active');
+                }, 100);
+            }, 300);
+        }
+        
+        // Mulai animasi pergantian setiap 4 detik (diperpanjang untuk menikmati efek)
+        setInterval(switchLogo, 4000);
+        
+        // Efek hover pada footer
+        const footer = document.querySelector('.footer');
+        footer.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-5px)';
+            this.style.boxShadow = '0 20px 40px rgba(0, 0, 0, 0.3)';
+        });
+        
+        footer.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+            this.style.boxShadow = 'none';
+        });
+    </script>
+</body>
+</html>
