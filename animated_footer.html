@@ -3,59 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Footer dengan Logo Berganti</title>
+    <title>Logo Animation</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            min-height: 100vh;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-
-        /* Content placeholder untuk menunjukkan footer di bawah */
-        .content {
-            min-height: 80vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 1.5rem;
-            text-align: center;
-            padding: 2rem;
-        }
-
-        /* Footer Styles */
-        .footer {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-top: 1px solid rgba(0, 0, 0, 0.1);
-            padding: 3rem 2rem;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .footer::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.4), transparent);
-            animation: shimmer 3s infinite;
-        }
-
-        @keyframes shimmer {
-            0% { left: -100%; }
-            100% { left: 100%; }
-        }
-
+        /* Logo Container */
         .logo-container {
             position: relative;
             height: 80px;
@@ -158,75 +108,8 @@
             }
         }
 
-        .footer-text {
-            color: rgba(0, 0, 0, 0.7);
-            font-size: 0.9rem;
-            margin-bottom: 1rem;
-            opacity: 0;
-            animation: fadeInUp 1s ease-out 0.5s forwards;
-        }
-
-        .footer-links {
-            display: flex;
-            justify-content: center;
-            gap: 2rem;
-            margin-bottom: 1.5rem;
-            opacity: 0;
-            animation: fadeInUp 1s ease-out 0.7s forwards;
-        }
-
-        .footer-link {
-            color: rgba(0, 0, 0, 0.6);
-            text-decoration: none;
-            font-size: 0.85rem;
-            position: relative;
-            transition: color 0.3s ease;
-        }
-
-        .footer-link:hover {
-            color: #000;
-        }
-
-        .footer-link::after {
-            content: '';
-            position: absolute;
-            bottom: -4px;
-            left: 50%;
-            width: 0;
-            height: 1px;
-            background: #000;
-            transition: all 0.3s ease;
-            transform: translateX(-50%);
-        }
-
-        .footer-link:hover::after {
-            width: 100%;
-        }
-
-        .copyright {
-            color: rgba(0, 0, 0, 0.5);
-            font-size: 0.75rem;
-            opacity: 0;
-            animation: fadeInUp 1s ease-out 0.9s forwards;
-        }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
         /* Responsive */
         @media (max-width: 768px) {
-            .footer {
-                padding: 2rem 1rem;
-            }
-            
             .logo-gndrng img {
                 height: 32px;
             }
@@ -234,49 +117,25 @@
             .logo-labs img {
                 height: 36px;
             }
-            
-            .footer-links {
-                flex-direction: column;
-                gap: 1rem;
-            }
         }
     </style>
 </head>
 <body>
-    <div class="content">
-        <div>
-            <h1>Selamat Datang!</h1>
-            <p>Scroll ke bawah untuk melihat footer dengan logo yang berganti</p>
+    <!-- HTML Logo -->
+    <div class="logo-container">
+        <!-- Logo GNDRNG -->
+        <div class="logo logo-gndrng active" id="logo1">
+            <img src="https://raw.githubusercontent.com/agungfadilnur/Audio-Play/refs/heads/main/GNDRG.png" alt="GNDRNG Logo" />
+        </div>
+        
+        <!-- Logo LABS -->
+        <div class="logo logo-labs inactive" id="logo2">
+            <img src="https://agungfadilnur.github.io/darklogic/img/darklogic-warna.png" alt="LABS Logo" />
         </div>
     </div>
 
-    <footer class="footer">
-        <div class="logo-container">
-            <!-- Logo GNDRNG -->
-            <div class="logo logo-gndrng active" id="logo1">
-                <img src="https://raw.githubusercontent.com/agungfadilnur/Audio-Play/refs/heads/main/GNDRG.png" alt="GNDRNG Logo" />
-            </div>
-            
-            <!-- Logo LABS -->
-            <div class="logo logo-labs inactive" id="logo2">
-                <img src="https://agungfadilnur.github.io/darklogic/img/darklogic-warna.png" alt="LABS Logo" />
-            </div>
-        </div>
-
-        <p class="footer-text">Menciptakan pengalaman digital yang menakjubkan</p>
-        
-        <div class="footer-links">
-            <a href="#" class="footer-link">Tentang Kami</a>
-            <a href="#" class="footer-link">Layanan</a>
-            <a href="#" class="footer-link">Portfolio</a>
-            <a href="#" class="footer-link">Kontak</a>
-        </div>
-
-        <p class="copyright">&copy; 2024 Your Company. Semua hak dilindungi.</p>
-    </footer>
-
     <script>
-        // Animasi pergantian logo
+        // JavaScript Animation
         let currentLogo = 0;
         const logos = ['logo1', 'logo2'];
         
@@ -310,20 +169,8 @@
             }, 300);
         }
         
-        // Mulai animasi pergantian setiap 4 detik (diperpanjang untuk menikmati efek)
+        // Mulai animasi pergantian setiap 4 detik
         setInterval(switchLogo, 4000);
-        
-        // Efek hover pada footer
-        const footer = document.querySelector('.footer');
-        footer.addEventListener('mouseenter', function() {
-            this.style.transform = 'translateY(-5px)';
-            this.style.boxShadow = '0 20px 40px rgba(0, 0, 0, 0.3)';
-        });
-        
-        footer.addEventListener('mouseleave', function() {
-            this.style.transform = 'translateY(0)';
-            this.style.boxShadow = 'none';
-        });
     </script>
 </body>
 </html>
